@@ -1,112 +1,123 @@
-document.addEventListener("DOMContentLoaded", function () {
-  console.log("DOM fully loaded and parsed");
+document.addEventListener('DOMContentLoaded', loadTasks);
 
-  let addtask = document.getElementById("addTaskbtn");
-  
+function addTask() {
+  const taskDescription = document.getElementById('taskDescription').value;
+  const assignedTo = document.getElementById('assignedTo').value;
+  const dueDate = document.getElementById('dueDate').value;
+  const priority = document.getElementById('priority').value;
+  const status = document.getElementById('status').value;
 
-  function reset(){
-    document.getElementById("taskTitle").value = '';
-    document.getElementById("taskDescription").value = '';
-    document.getElementById("taskDueDate").value = '';
-    document.getElementById("taskTags").value = '';
-    document.getElementById("taskUsername").value = '';
+  if (!taskDescription || !assignedTo || !dueDate || !priority || !status) {
+    alert('Please fill in all fields');
+    return;
   }
 
+  const task = {
+    id: Date.now(),
+    taskDescription,
+    assignedTo,
+    dueDate,
+    priority,
+    status
+  };
 
-  addtask.addEventListener("click", function () {
-    let taskName = document.getElementById("taskTitle").value;
-    let taskdescription = document.getElementById("taskDescription").value;
-    let taskDueDate = document.getElementById("taskDueDate").value;
-    let taskTags = document.getElementById("taskTags").value;
-    let taskUsername = document.getElementById("taskUsername").value;
+  let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  tasks.push(task);
+  localStorage.setItem('tasks', JSON.stringify(tasks));
 
-    const task = {
-      id: Math.random().toString(16).slice(2),
-      taskName: taskName.trim(),
-      taskdescription: taskdescription.trim(),
-      taskDueDate: taskDueDate.trim(),
-      taskTags: taskTags.trim(),
-      taskUsername: taskUsername.trim(),
-    };
-    let availableTasks = localStorage.getItem("tasks");
+  clearInputs();
+  displayTasks();
+}
 
-    if (availableTasks) {
-      let tasks = JSON.parse(availableTasks);
-      tasks.push(task);
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-    } else {
-      let newTasks = [];
-      newTasks.push(task);
-      localStorage.setItem("tasks", JSON.stringify(newTasks));
-    }
+function editTask(id) {
+  let tasks = JSON.parse(localStorage.getItem('tasks'));
+  const task = tasks.find(task => task.id === id);
 
-    displayTask();
-    reset();
-  });
+  if (task) {
+    document.getElementById('taskDescription').value = task.taskDescription;
+    document.getElementById('assignedTo').value = task.assignedTo;
+    document.getElementById('dueDate').value = task.dueDate;
+    document.getElementById('priority').value = task.priority;
+    document.getElementById('status').value = task.status;
 
-  function updateTask(id) {
-    let tasks = JSON.parse(localStorage.getItem("tasks"));
-    let task = tasks.find((task) => task.id === id);
-
-    document.getElementById("taskTitle").value = task.taskName;
-    document.getElementById("taskDescription").value = task.taskdescription;
-    document.getElementById("taskDueDate").value = task.taskDueDate;
-    document.getElementById("taskTags").value = task.taskTags;
-    document.getElementById("taskUsername").value = task.taskUsername;
-
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-    deleteTask(id);
-  }
-
-  function displayTask(showTaskItem) {
-    let tasks = showTaskItem || JSON.parse(localStorage.getItem("tasks")) || [];
-    let taskContainer = document.querySelector(".search-field");
-    taskContainer.innerHTML = '';
-
-    tasks.forEach(task => {
-      let task_div = document.createElement('div');
-        task_div.classList.add('taskItem');
-
-        let html = `<h4>${task.taskName}</h4>
-                    <p>Description: ${task.taskdescription}</p>
-                    <p>Due Date: ${task.taskDueDate}</p>
-                    <p>Tags: ${task.taskTags}</p>
-                    <p>Username: ${task.taskUsername}</h4>
-                    <button onclick="updateTask('${task.id}')">EDIT</button>
-                    <button onclick="deleteTask('${task.id}')">DELETE</button>`;
-
-        task_div.innerHTML = html;
-        taskContainer.appendChild(task_div);
-    });
-  }
-
-  function deleteTask(id) {
-    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
     tasks = tasks.filter(task => task.id !== id);
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-
-    displayTask(tasks);
+    localStorage.setItem('tasks', JSON.stringify(tasks));
   }
 
-  let search = document.getElementById("searchTaskbtn");
-  search.addEventListener("click", function () {
-    let text = document.getElementById("searchBar").value.toLowerCase();
-    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  
-    let searchFilter = tasks.filter(task =>
-      task.taskName.toLowerCase().includes(text) ||
-      task.taskdescription.toLowerCase().includes(text) ||
-      task.taskDueDate.toLowerCase().includes(text) ||
-      task.taskTags.toLowerCase().includes(text) ||
-      task.taskUsername.toLowerCase().includes(text)
-    );
-  
-    displayTask(searchFilter);
-  });
-  
-  window.updateTask = updateTask;
-  window.deleteTask = deleteTask;
+  displayTasks();
+}
 
-  displayTask();
+function deleteTask(id) {
+  let tasks = JSON.parse(localStorage.getItem('tasks'));
+  tasks = tasks.filter(task => task.id !== id);
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  displayTasks();
+}
+
+function filterTasks() {
+  const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
+  let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  tasks = tasks.filter(task => {
+    return (
+      task.taskDescription.toLowerCase().includes(searchFilter) ||
+      task.assignedTo.toLowerCase().includes(searchFilter) ||
+      task.dueDate.toLowerCase().includes(searchFilter) ||
+      task.priority.toLowerCase().includes(searchFilter) ||
+      task.status.toLowerCase().includes(searchFilter)
+    );
   });
- 
+  displayFilteredTasks(tasks);
+}
+
+function displayTasks() {
+  let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  displayFilteredTasks(tasks);
+}
+
+function displayFilteredTasks(tasks) {
+  const taskList = document.getElementById('taskList');
+  taskList.innerHTML = '';
+
+  tasks.forEach(task => {
+    const taskDiv = document.createElement('div');
+    taskDiv.className = 'task';
+
+    const taskHeader = document.createElement('h2');
+    taskHeader.textContent = task.taskDescription;
+
+    const taskDetails = document.createElement('p');
+    taskDetails.innerHTML = `
+      Assigned to: ${task.assignedTo} <br>
+      Due date: ${task.dueDate} <br>
+      Priority: ${task.priority} <br>
+      Status: ${task.status}
+    `;
+
+    const editButton = document.createElement('button');
+    editButton.textContent = 'Edit';
+    editButton.onclick = () => editTask(task.id);
+
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Delete';
+    deleteButton.onclick = () => deleteTask(task.id);
+
+    taskDiv.appendChild(taskHeader);
+    taskDiv.appendChild(taskDetails);
+    taskDiv.appendChild(editButton);
+    taskDiv.appendChild(deleteButton);
+
+    taskList.appendChild(taskDiv);
+  });
+}
+
+function loadTasks() {
+  displayTasks();
+}
+
+function clearInputs() {
+  document.getElementById('taskDescription').value = '';
+  document.getElementById('assignedTo').value = '';
+  document.getElementById('dueDate').value = '';
+  document.getElementById('priority').value = '';
+  document.getElementById('status').value = '';
+}
