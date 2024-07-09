@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("taskUsername").value = '';
   }
 
-
+  //function to add task into localstorage
   addtask.addEventListener("click", function () {
     let taskName = document.getElementById("taskTitle").value;
     let taskdescription = document.getElementById("taskDescription").value;
@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let taskTags = document.getElementById("taskTags").value;
     let taskUsername = document.getElementById("taskUsername").value;
 
+    //making object of a task to push into localstorage
     const task = {
       id: Math.random().toString(16).slice(2),
       taskName: taskName.trim(),
@@ -43,6 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
     reset();
   });
 
+  //function to update task
   function updateTask(id) {
     let tasks = JSON.parse(localStorage.getItem("tasks"));
     let task = tasks.find((task) => task.id === id);
