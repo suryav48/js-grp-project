@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let addtask = document.getElementById("addTaskbtn");
 
-
   function reset(){
     document.getElementById("taskTitle").value = '';
     document.getElementById("taskDescription").value = '';
@@ -58,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem("tasks", JSON.stringify(tasks));
     deleteTask(id);
   }
-
+// function to display tasks
   function displayTask(showTaskItem) {
     let tasks = showTaskItem || JSON.parse(localStorage.getItem("tasks")) || [];
     let taskContainer = document.querySelector(".search-field");
@@ -80,14 +79,14 @@ document.addEventListener("DOMContentLoaded", function () {
         taskContainer.appendChild(task_div);
     });
   }
-
+// function to delete task from local storage
   function deleteTask(id) {
     let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
     tasks = tasks.filter(task => task.id !== id);
     localStorage.setItem("tasks", JSON.stringify(tasks));
     displayTask(tasks);
   }
-
+// filter the task when searchTaskBtn button is clicked
     let search = document.getElementById("searchTaskbtn");
     search.addEventListener("click", function () {
     let text = document.getElementById("searchBar").value.toLowerCase();
@@ -100,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
       task.taskTags.toLowerCase().includes(text) ||
       task.taskUsername.toLowerCase().includes(text)
     );
-
+      
     displayTask(searchFilter);
   });
 
