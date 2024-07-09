@@ -128,10 +128,10 @@ footer nav a{
 footer h3{
   padding: 20px;
 }
-.search-field{
+/* .search-field{
   background-color: rgb(190, 154, 166);
   padding: 50px;
-}
+} */
 .taskItem{
   padding: 15px;
   border-radius: 5px;
